@@ -1,0 +1,30 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+ASSETS_DIR = PROJECT_ROOT / "assets"
+UPLOADS_DIR = ASSETS_DIR / "uploads"
+PREVIEWS_DIR = ASSETS_DIR / "previews"
+HDR_DIR = ASSETS_DIR / "hdr"
+
+CUBE_RES = 2048
+PANORAMA_WIDTH = 8192
+PANORAMA_HEIGHT = 4096
+AI_FACE_RES = 1024
+
+DEFAULT_FOV_H_DEG = 84.0
+DEFAULT_FOV_V_DEG = 56.0
+
+EV_OFFSETS = [-3.0, -1.0, 0.0, 1.0, 3.0]
+HIGHLIGHT_THRESHOLD = 0.98
+
+AI_CFG_SCALE = 4.0
+AI_STEPS = 25
+AI_STRENGTH_ORIGINAL = 0.3
+AI_DENOISE_NEW = 0.8
+
+PREVIEW_MAX_WIDTH = 2048
+
+JOB_POLL_SECONDS = 2
+

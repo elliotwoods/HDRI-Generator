@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+pillow
+pillow-heif
+python-multipart
+piexif
+numpy
+opencv-python
+imageio
+imageio-ffmpeg
+diffusers
+transformers
+accelerate
+hf_xet
