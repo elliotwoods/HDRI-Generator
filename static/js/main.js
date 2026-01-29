@@ -14,6 +14,15 @@ const dropZone = document.getElementById("dropZone");
 const viewerEl = document.getElementById("viewer");
 const exposureSlider = document.getElementById("exposureSlider");
 const exposureValue = document.getElementById("exposureValue");
+const faceEvLabel = document.getElementById("faceEvLabel");
+const faceImages = {
+  px: document.getElementById("face_px"),
+  nx: document.getElementById("face_nx"),
+  py: document.getElementById("face_py"),
+  ny: document.getElementById("face_ny"),
+  pz: document.getElementById("face_pz"),
+  nz: document.getElementById("face_nz"),
+};
 
 let currentFile = null;
 let activeJobId = null;
@@ -216,6 +225,12 @@ async function uploadFile(file) {
   downloadLinks.style.display = "none";
   statusLog.textContent = "";
   logStatus("Upload started.");
+  Object.values(faceImages).forEach((img) => {
+    if (img) img.removeAttribute("src");
+  });
+  if (faceEvLabel) {
+    faceEvLabel.textContent = "";
+  }
 
   const previewUrl = await fileToEquirectPreview(file);
   updatePanorama(previewUrl);
@@ -277,6 +292,16 @@ function connectWebSocket(jobId) {
     if (data.event === "preview") {
       updatePanorama(`${data.preview_url}?t=${Date.now()}`);
       logStatus("Preview updated.");
+    }
+    if (data.event === "face_preview") {
+      const faceKey = data.face;
+      const img = faceImages[faceKey];
+      if (img) {
+        img.src = `${data.url}?t=${Date.now()}`;
+      }
+      if (faceEvLabel) {
+        faceEvLabel.textContent = `EV ${data.ev} (latest)`;
+      }
     }
     if (data.event === "done") {
       progressBar.style.width = "100%";

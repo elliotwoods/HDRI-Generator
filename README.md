@@ -1,5 +1,7 @@
 # Single-Photo to HDRI Generator
 
+**Warning:** This project is currently a concept/prototype and is not yet fully implemented or production-ready.
+
 This project turns a single HEIC photo into a stitched HDRI (EXR/HDR) with a web UI, live progress, and a 360 preview viewer.
 
 ## Features

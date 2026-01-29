@@ -83,6 +83,20 @@ async def run_pipeline(job_id: str, heic_path: str, scene_type_override: Optiona
 
             loop.call_soon_threadsafe(_do)
 
+        def _schedule_preview_snapshot(snapshot: Dict[str, np.ndarray]) -> None:
+            async def _emit_preview() -> None:
+                pano_lin = await asyncio.to_thread(
+                    cubemap_to_equirectangular, snapshot, PANORAMA_WIDTH, PANORAMA_HEIGHT
+                )
+                preview = await asyncio.to_thread(tone_map_for_preview, pano_lin)
+                preview_path = PREVIEWS_DIR / f"{job_id}_preview.jpg"
+                await asyncio.to_thread(iio.imwrite, preview_path, (preview * 255.0).astype(np.uint8))
+                preview_url = f"/api/result/{job_id}/preview"
+                _update_job(job_id, preview_url=preview_url)
+                await WS_MANAGER.broadcast(job_id, {"event": "preview", "preview_url": preview_url})
+
+            loop.call_soon_threadsafe(lambda: asyncio.create_task(_emit_preview()))
+
         _update_job(job_id, status="processing", current_stage="Loading image")
         await WS_MANAGER.broadcast(job_id, {"event": "status", "stage": "Loading image", "progress": 0.05})
 
@@ -155,20 +169,31 @@ async def run_pipeline(job_id: str, heic_path: str, scene_type_override: Optiona
                 if now - last_preview["t"] < 2.0:
                     return
                 last_preview["t"] = now
+                snapshot = {k: v.copy() for k, v in faces_out_current.items()}
+                _schedule_preview_snapshot(snapshot)
+                def _emit_face_preview() -> None:
+                    try:
+                        face_preview = tone_map_for_preview(face_img)
+                        face_path = PREVIEWS_DIR / f"{job_id}_ev{ev:+.0f}_{face_name}.jpg"
+                        iio.imwrite(face_path, (face_preview * 255.0).astype(np.uint8))
+                        face_url = f"/api/result/{job_id}/face/{ev:+.0f}/{face_name}"
+                        loop.call_soon_threadsafe(
+                            lambda: asyncio.create_task(
+                                WS_MANAGER.broadcast(
+                                    job_id,
+                                    {
+                                        "event": "face_preview",
+                                        "ev": f"{ev:+.0f}",
+                                        "face": face_name,
+                                        "url": face_url,
+                                    },
+                                )
+                            )
+                        )
+                    except Exception:
+                        pass
 
-                async def _emit_preview() -> None:
-                    snapshot = {k: v.copy() for k, v in faces_out_current.items()}
-                    pano_lin = await asyncio.to_thread(
-                        cubemap_to_equirectangular, snapshot, PANORAMA_WIDTH, PANORAMA_HEIGHT
-                    )
-                    preview = await asyncio.to_thread(tone_map_for_preview, pano_lin)
-                    preview_path = PREVIEWS_DIR / f"{job_id}_preview.jpg"
-                    await asyncio.to_thread(iio.imwrite, preview_path, (preview * 255.0).astype(np.uint8))
-                    preview_url = f"/api/result/{job_id}/preview"
-                    _update_job(job_id, preview_url=preview_url)
-                    await WS_MANAGER.broadcast(job_id, {"event": "preview", "preview_url": preview_url})
-
-                asyncio.create_task(_emit_preview())
+                loop.call_soon_threadsafe(lambda: loop.run_in_executor(None, _emit_face_preview))
 
             faces_out = await asyncio.to_thread(
                 ai.enhance_cubemap_for_ev,

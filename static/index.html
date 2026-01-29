@@ -188,6 +188,18 @@
         <div class="progress"><div id="progressBar"></div></div>
         <div class="status" id="statusText">Waiting for upload.</div>
         <div class="status" id="statusLog" style="max-height: 140px; overflow: auto; background: rgba(0,0,0,0.04); padding: 10px; border-radius: 10px;"></div>
+        <div>
+          <div style="font-weight: 600; margin-bottom: 8px;">Face previews (latest EV)</div>
+          <div id="faceGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            <div><div style="font-size: 12px;">px</div><img id="face_px" style="width: 100%; border-radius: 8px; background:#111;" /></div>
+            <div><div style="font-size: 12px;">nx</div><img id="face_nx" style="width: 100%; border-radius: 8px; background:#111;" /></div>
+            <div><div style="font-size: 12px;">py</div><img id="face_py" style="width: 100%; border-radius: 8px; background:#111;" /></div>
+            <div><div style="font-size: 12px;">ny</div><img id="face_ny" style="width: 100%; border-radius: 8px; background:#111;" /></div>
+            <div><div style="font-size: 12px;">pz</div><img id="face_pz" style="width: 100%; border-radius: 8px; background:#111;" /></div>
+            <div><div style="font-size: 12px;">nz</div><img id="face_nz" style="width: 100%; border-radius: 8px; background:#111;" /></div>
+          </div>
+          <div id="faceEvLabel" style="font-size: 12px; margin-top: 6px; opacity: 0.7;"></div>
+        </div>
         <div class="actions" id="downloadLinks" style="display: none;">
           <a id="downloadHdr" href="#" download>Download HDR</a>
           <a id="downloadPreview" href="#" download>Download Preview</a>

@@ -56,3 +56,12 @@ async def get_preview(job_id: str) -> FileResponse:
         raise HTTPException(status_code=404, detail="Preview not ready.")
     return FileResponse(preview_path, filename=preview_path.name, media_type="image/jpeg")
 
+
+@router.get("/api/result/{job_id}/face/{ev}/{face}")
+async def get_face_preview(job_id: str, ev: str, face: str) -> FileResponse:
+    safe_face = face.lower()
+    preview_path = PREVIEWS_DIR / f"{job_id}_ev{ev}_{safe_face}.jpg"
+    if not preview_path.exists():
+        raise HTTPException(status_code=404, detail="Face preview not ready.")
+    return FileResponse(preview_path, filename=preview_path.name, media_type="image/jpeg")
+
